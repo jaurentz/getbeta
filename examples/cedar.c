@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <lapacke.h>
 
 struct HamData
 {
@@ -20,7 +21,7 @@ int main(){
 
 	struct HamData *HD;
 	HD = (struct HamData*)malloc(sizeof(struct HamData));
-	HD-> n = 7;
+	HD-> n = 3;
 	HD-> a = 2.0;
 	HD-> b = -2.0;
 
@@ -32,6 +33,15 @@ int main(){
 	
 	double *Y; //pointer to double array
 	Y = (double*)malloc(n*n*sizeof(double));
+
+	double *d; 
+	d = (double*)malloc(n*sizeof(double));
+
+	double *e;
+	e = (double*)malloc(n*sizeof(double));
+
+	double *Z; 
+	Z = (double*)malloc(n*n*sizeof(double));
 
 	// for loop to change X
 	int jj;	
@@ -66,14 +76,14 @@ int main(){
 		printf("X[%d] = %+1.15e\n",ii,X[ii]);
 	}
 	printf("\n");			
-	/*/
+	
 	printf("This is the identity matrix:\n");
 	for(ii=0;ii<n;ii++)
 	{
 		for(jj=0;jj<n;jj++)
 		{ printf("%+1.1e ",X[ii+jj*n]);
 		}printf("\n");
-	}
+	}/*/
 		
 	//for loop to print that ham
 	for(ii=0;ii<n;ii++){
@@ -87,7 +97,58 @@ int main(){
 		{ printf("%+1.1e ",Y[ii+jj*n]);
 		}printf("\n");
 	}
-		
+
+
+	//picking off the main diagonal in order to feed to lapack's eigen-solver 
+	printf("Thse are the diagonal elements\n"); 
+	for(ii=0;ii<n;ii++){
+		d[ii] = Y[ii*(n+1)];
+	}
+	
+	for(ii=0;ii<n;ii++){
+	printf("%+1.1e",d[ii]); 
+	}printf("\n");
+
+	//picking the off diagonal in order to feed to lapack's eigen-solver
+	printf("These are the off-main diagonal elements");
+	for(ii=0;ii<n-1;ii++){
+		e[ii] = Y[ii*(n+1)+1];
+	}printf("\n");
+	
+	for(ii=0;ii<n-1;ii++){
+	printf("%+1.1e",e[ii]); 
+	}printf("\n");
+
+	//identity matrix(Z) Needed for lapack's eigen-solver(otherwise you won't get the correct values)    
+	for(ii=0;ii<n;ii++)
+	{
+		for(jj=0;jj<n;jj++){
+			if(ii == jj) {
+				Z[ii*n+jj] = 1.0; 
+				//printf("X[%d] = %+1.15e\n",ii,X[ii]);
+			}
+			else{
+				Z[ii*n+jj] = 0.0; 
+				//printf("X[%d] = %+1.15e\n",jj,X[jj]);
+			}
+		}
+	}
+
+	printf("This is the new identity matrix:\n");
+	for(ii=0;ii<n;ii++)
+	{
+		for(jj=0;jj<n;jj++)
+		{ printf("%+1.1e ",Z[ii+jj*n]);
+		}printf("\n");
+	}
+
+	//call 1-800-la-pack
+
+	LAPACKE_dsteqr(LAPACK_COL_MAJOR,'I', n, d ,e ,Z, n); 
+
+
+
+	
 	/*
 	printf("\nThis is the new Y:\n");
 	for(ii=0;ii<n;ii++){
@@ -99,6 +160,9 @@ int main(){
 	//freeing memory 
 	free(X);
 	free(Y);
+	free(d);
+	free(e);
+	free(Z);
 	
 
 
