@@ -21,9 +21,9 @@ int main(){
 
 	struct HamData *HD;
 	HD = (struct HamData*)malloc(sizeof(struct HamData));
-	HD-> n = 3;
-	HD-> a = 2.0;
-	HD-> b = -2.0;
+	HD-> n = 10000;
+	HD-> a = 8.0;
+	HD-> b = -8.0;
 
 	int n = HD-> n;
 
@@ -90,13 +90,13 @@ int main(){
 		HamOp(&X[ii*n],&Y[ii*n],HD);
 	} 
 
-	printf("Home is where the cured pig is(e.g. HAM):\n");
-	for(ii=0;ii<n;ii++)
-	{
-		for(jj=0;jj<n;jj++)
-		{ printf("%+1.1e ",Y[ii+jj*n]);
-		}printf("\n");
-	}
+//	printf("Home is where the cured pig is(e.g. HAM):\n");
+//	for(ii=0;ii<n;ii++)
+//	{
+//		for(jj=0;jj<n;jj++)
+//		{ printf("%+1.1e ",Y[ii+jj*n]);
+//		}printf("\n");
+//	}
 
 
 	//picking off the main diagonal in order to feed to lapack's eigen-solver 
@@ -105,9 +105,9 @@ int main(){
 		d[ii] = Y[ii*(n+1)];
 	}
 	
-	for(ii=0;ii<n;ii++){
-	printf("%+1.1e",d[ii]); 
-	}printf("\n");
+//	for(ii=0;ii<n;ii++){
+//	printf("%+1.1e",d[ii]); 
+//	}printf("\n");
 
 	//picking the off diagonal in order to feed to lapack's eigen-solver
 	printf("These are the off-main diagonal elements");
@@ -115,9 +115,9 @@ int main(){
 		e[ii] = Y[ii*(n+1)+1];
 	}printf("\n");
 	
-	for(ii=0;ii<n-1;ii++){
-	printf("%+1.1e",e[ii]); 
-	}printf("\n");
+//	for(ii=0;ii<n-1;ii++){
+//	printf("%+1.1e",e[ii]); 
+//	}printf("\n");
 
 	//identity matrix(Z) Needed for lapack's eigen-solver(otherwise you won't get the correct values)    
 	for(ii=0;ii<n;ii++)
@@ -134,19 +134,30 @@ int main(){
 		}
 	}
 
-	printf("This is the new identity matrix:\n");
-	for(ii=0;ii<n;ii++)
-	{
-		for(jj=0;jj<n;jj++)
-		{ printf("%+1.1e ",Z[ii+jj*n]);
-		}printf("\n");
-	}
+//	printf("This is the new identity matrix:\n");
+//	for(ii=0;ii<n;ii++)
+//	{
+//		for(jj=0;jj<n;jj++)
+//		{ printf("%+1.1e ",Z[ii+jj*n]);
+//		}printf("\n");
+//	}
 
 	//call 1-800-la-pack
 
-	LAPACKE_dsteqr(LAPACK_COL_MAJOR,'I', n, d ,e ,Z, n); 
+	LAPACKE_dsteqr(LAPACK_COL_MAJOR,'N', n, d ,e ,Z, n); 
 
-
+	printf("\nd after lapacke:\n");
+	for(ii=0;ii<5;ii++){
+	printf("%+1.15e\n",d[ii]); 
+	}printf("\n");
+	
+//	printf("\nZ after lapacke:\n");
+//	for(ii=0;ii<n;ii++)
+//	{
+//		for(jj=0;jj<n;jj++)
+//		{ printf("%+1.1e ",Z[ii+jj*n]);
+//		}printf("\n");
+//	}
 
 	
 	/*
