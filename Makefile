@@ -1,4 +1,4 @@
-include ./environment
+include ./make.inc
 
 EXAMPLES := $(wildcard ./examples/*.cu)
 
