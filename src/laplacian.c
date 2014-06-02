@@ -1,12 +1,13 @@
 //creating the laplacian operator 
 
+//flag should be zero here so that way it will overwrite whatever was in Y. 
 void lapmult(double alpha ,int n, double*X,double*Y,int flag){
 
 	int ii;
 
 	if(flag == 0){
 	
-	//computing Y
+	//computing Y using finite difference method where matrix has -1, 2, -1 on tri diagonal. 
 	for(ii=1;ii< n-1;ii++){
 		Y[ii] = (-X[ii-1]+2*X[ii]-X[ii+1])*alpha;
 	}
@@ -17,7 +18,7 @@ void lapmult(double alpha ,int n, double*X,double*Y,int flag){
 	Y[n-1] = (2*X[n-1]-X[n-2])*alpha;
 
 	
-	//multiplying all terms by 1/h^2
+	//multiplying all terms by 1/h^2 which is alpha. alpha is specified in HamOp so that way it can be an arbitrary scalar. 
 	for(ii=0;ii< n;ii++){
 		Y[ii] = Y[ii]*alpha;
 	}
