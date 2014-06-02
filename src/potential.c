@@ -1,3 +1,6 @@
+
+#include <math.h>
+
 //creating the potential operator 
 void potential(double beta, int n, double a, double b, double*X, double*Y,int flag){
 
