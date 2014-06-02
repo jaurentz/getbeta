@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <lapacke.h>
+#include <getbeta.h> 
 
 struct HamData
 {
@@ -12,51 +13,47 @@ struct HamData
  
 void HamOp(double*X,double*Y,struct HamData*HD);
 
-void lapmult(double alpha, int n, double*X, double*Y, int flag);	
-
-void potential(double beta, int n, double a, double b, double*X, double*Y, int flag); 
-
 
 int main(){
 
 	struct HamData *HD;
 	HD = (struct HamData*)malloc(sizeof(struct HamData));
-	HD-> n = 10000;
-	HD-> a = 8.0;
-	HD-> b = -8.0;
+	HD-> n = 3;
+	HD-> a = 2.0;
+	HD-> b = -2.0;
 
 	int n = HD-> n;
 
-	//creating dynamic memory
+	//allocating dynamic memory
 	double *X; //pointer to double array
 	X = (double*)malloc(n*n*sizeof(double));
 	
 	double *Y; //pointer to double array
 	Y = (double*)malloc(n*n*sizeof(double));
 
-	double *d; 
+	double *d; //for the lapack solver
 	d = (double*)malloc(n*sizeof(double));
 
-	double *e;
+	double *e; //for the lapack solver
 	e = (double*)malloc(n*sizeof(double));
 
-	double *Z; 
+	double *Z; //for the lapack solver 
 	Z = (double*)malloc(n*n*sizeof(double));
 
-	// for loop to change X
+	// for loop to change X  
 	int jj;	
 	int ii;
 	for(ii=0;ii<n;ii++){
 		X[ii] = 1.0;
 	}
 	
-	//for loop to change Y
+	//Assigning the value of Y (zero is a placeholder because it will be computed later.)
 	for(ii=0;ii<n;ii++){
 		Y[ii] = 0.0;
 	}
 
 
-	//creating the identity matrix     
+	//creating the identity matrix which will be used in order to print the Hamiltonian. (H * identity = Hamiltonian) this way we can verify what the Hamiltonian looks like.   
 	for(ii=0;ii<n;ii++)
 	{
 		for(jj=0;jj<n;jj++){
@@ -85,18 +82,18 @@ int main(){
 		}printf("\n");
 	}/*/
 		
-	//for loop to print that ham
+	//creating the hamiltonian 
 	for(ii=0;ii<n;ii++){
 		HamOp(&X[ii*n],&Y[ii*n],HD);
 	} 
-
-//	printf("Home is where the cured pig is(e.g. HAM):\n");
-//	for(ii=0;ii<n;ii++)
-//	{
-//		for(jj=0;jj<n;jj++)
-//		{ printf("%+1.1e ",Y[ii+jj*n]);
-//		}printf("\n");
-//	}
+	//printing hamiltonian 
+	printf("The is the Hamiltonian:\n");
+	for(ii=0;ii<n;ii++)
+	{
+		for(jj=0;jj<n;jj++)
+		{ printf("%+1.1e ",Y[ii+jj*n]);
+		}printf("\n");
+	}
 
 
 	//picking off the main diagonal in order to feed to lapack's eigen-solver 
@@ -104,20 +101,21 @@ int main(){
 	for(ii=0;ii<n;ii++){
 		d[ii] = Y[ii*(n+1)];
 	}
-	
-//	for(ii=0;ii<n;ii++){
-//	printf("%+1.1e",d[ii]); 
-//	}printf("\n");
+	/*/printing the main diagonal elements. 
+	for(ii=0;ii<n;ii++){
+	printf("%+1.1e",d[ii]); 
+	}printf("\n");/*/
 
-	//picking the off diagonal in order to feed to lapack's eigen-solver
+	//picking the off-diagonal elements in order to feed to lapack's eigen-solver
 	printf("These are the off-main diagonal elements");
 	for(ii=0;ii<n-1;ii++){
 		e[ii] = Y[ii*(n+1)+1];
 	}printf("\n");
-	
-//	for(ii=0;ii<n-1;ii++){
-//	printf("%+1.1e",e[ii]); 
-//	}printf("\n");
+
+	/*/printing the off-diagonal elements. 
+	for(ii=0;ii<n-1;ii++){
+	printf("%+1.1e",e[ii]); 
+	}printf("\n");/*/
 
 	//identity matrix(Z) Needed for lapack's eigen-solver(otherwise you won't get the correct values)    
 	for(ii=0;ii<n;ii++)
@@ -133,31 +131,20 @@ int main(){
 			}
 		}
 	}
+	/*/printing the identity matrix. 
+	printf("This is the new identity matrix:\n");
+	for(ii=0;ii<n;ii++)
+	{
+		for(jj=0;jj<n;jj++)
+		{ printf("%+1.1e ",Z[ii+jj*n]);
+		}printf("\n");
+	}/*/
 
-//	printf("This is the new identity matrix:\n");
-//	for(ii=0;ii<n;ii++)
-//	{
-//		for(jj=0;jj<n;jj++)
-//		{ printf("%+1.1e ",Z[ii+jj*n]);
-//		}printf("\n");
-//	}
+	//Call 1-800-LA-PACKE for a free consulatation of eigenvalues and eigenvectors. 
 
-	//call 1-800-la-pack
+	LAPACKE_dsteqr(LAPACK_COL_MAJOR,'I', n, d ,e ,Z, n); 
 
-	LAPACKE_dsteqr(LAPACK_COL_MAJOR,'N', n, d ,e ,Z, n); 
 
-	printf("\nd after lapacke:\n");
-	for(ii=0;ii<5;ii++){
-	printf("%+1.15e\n",d[ii]); 
-	}printf("\n");
-	
-//	printf("\nZ after lapacke:\n");
-//	for(ii=0;ii<n;ii++)
-//	{
-//		for(jj=0;jj<n;jj++)
-//		{ printf("%+1.1e ",Z[ii+jj*n]);
-//		}printf("\n");
-//	}
 
 	
 	/*
@@ -187,88 +174,23 @@ void HamOp(double*X,double*Y,struct HamData*HD){
 
 	double h = (HD-> a- HD-> b)/(HD->n+1.0);
 	
-	int flag =  1;
+	int flag =  0;
 	
 	//constant for the laplacian e.g. the 1/h^2 term 
 	double alpha = (1.0/pow(h,2.0));
 
+	lapmult(alpha ,HD-> n , X, Y, flag);
+	
 	//constant for the potential 
 	double beta = 1.0;
 
-	lapmult(alpha ,HD-> n , X, Y, flag);
-	
+	flag  = 1;
+
 	potential(beta ,HD->n ,HD-> a ,HD-> b , X, Y, flag);
 
  
 }
 
-void lapmult(double alpha ,int n, double*X,double*Y,int flag){
-
-	int ii;
-
-	if(flag == 0){
-	
-	//computing Y
-	for(ii=1;ii< n-1;ii++){
-		Y[ii] = (-X[ii-1]+2*X[ii]-X[ii+1])*alpha;
-	}
-	//top row of lapl
-	Y[0] = (2*X[0]-X[1])*alpha;
-	
-	//bottom row of laplacian 
-	Y[n-1] = (2*X[n-1]-X[n-2])*alpha;
-
-	
-	//multiplying all terms by 1/h^2
-	for(ii=0;ii< n;ii++){
-		Y[ii] = Y[ii]*alpha;
-	}
-
-	}
-
-	else{//if else do this
-
-	for(ii=1;ii< n-1;ii++){
-		Y[ii] += (-X[ii-1]+2*X[ii]-X[ii+1])*alpha;
-	}
-	
-	Y[0] += (2*X[0]-X[1])*alpha;
-
-	Y[n-1] += (2*X[ n-1]-X[n-2])*alpha;
-
-	/* the old way of multiplying by a constant 
-	for(ii=0;ii< n ;ii++){
-		Y[ii] = Y[ii]*alpha;
-
-	}/*/
-
-	}
-
-	
-}
-
-//creating the potential operator 
-void potential(double beta, int n, double a, double b, double*X, double*Y,int flag){
-
-	int jj;
-	double h = (a - b)/(n+1.0);
-
-	if(flag == 0){	
-	
-	for(jj=0;jj<n;jj++){
-		Y[jj] = (pow(( b + (jj+1.0)*h),2) * X[jj])*beta; 
-	}
-	
-	}
-	else{  //if else do this
-	for(jj=0;jj<n;jj++){
-		Y[jj] += (pow(( b +(jj+1.0)*h),2) * X[jj])*beta;
-	}
-
-	}
- 
-
-}
 
 
 
