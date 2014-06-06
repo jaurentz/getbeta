@@ -45,7 +45,7 @@ int main(){
 }
 
 
-void lapmult(int n,double*X,double*Y){
+/*void lapmult(int n,double*X,double*Y){
 
 	int ii;
 	//computing Y
@@ -57,4 +57,4 @@ void lapmult(int n,double*X,double*Y){
 	
 	//bottom row of laplacian 
 	Y[n-1] = 2*X[n-1]-X[n-2];
-}
+}/*/

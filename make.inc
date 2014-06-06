@@ -1,26 +1,26 @@
-# CUCHEB home directory
-CUCHEBDIR := /usr/local/cucheb
+#this is the home directory of where the project lives. 
+HOMEDIR := /home/johnny/projects/getBeta
 
-# directory for CUDA library
-CUDADIR := #/usr/local/cuda
+#source file directory 
+SRCDIR := $(HOMEDIR)/src
 
-# CUDA compiler and flags
-CUC := nvcc
-CUFLAGS := -O3 --compiler-options '-fPIC -fopenmp' -arch=sm_30
+#example file directory 
+EXDIR := $(HOMEDIR)/examples
 
-# directory for CULA library
-CULADIR := /usr/local/cula
+#wildcard picks all the files with .c extension 
+SRC := $(wildcard $(SRCDIR)/*.c)
 
-# directory for CULASPARSE library
-CULASPARSEDIR := /usr/local/culasparse
+#will replace the .c files with the .o files once they have been compiled. 
+OBJS := $(patsubst $(SRCDIR)/%.c,$(SRCDIR)/%.o,$(SRC))
 
-# directory for BLAS library
-BLASDIR :=
+#wildcard picks all of the files in example directory with .c file extension. 
+CEXS := $(wildcard $(EXDIR)/*.c)
 
-# directory for LAPACK library
-LAPACKDIR :=
+#patsubst will replace the .c files with .o 
+EXS := $(patsubst $(EXDIR)/%.c,$(EXDIR)/ % ,$(CEXS) )
 
-# linking directories
-INCDIRS := -I $(CUCHEBDIR)/include -I $(CUDADIR)/include -I $(CULADIR)/include -I $(CULASPARSEDIR)/include
-LIBDIRS := -L $(CUCHEBDIR)/lib -L $(CULADIR)/lib64 -L $(CULASPARSEDIR)/lib64 -L $(BLASDIR) -L $(LAPACKDIR)
-LIBS := -lcucheb -lcuda -lcudart -lcublas -lcusparse -lcufft -lcurand -lcula_lapack -lcula_sparse -llapack -lblas -lm 
+#calling LAPACKE LAPACK & BLAS 
+LIBS := -lm -llapacke -llapack -lblas
+
+#calling the header file. 
+INCS := -I ../include/  -I /usr/include/lapacke/

@@ -1,9 +1,23 @@
 include ../make.inc
 
-all: testcucheb
+#EXS := cedar
 
-testcucheb: testcucheb.cu
-	$(CUC) $(CUFLAGS) -o testcucheb testcucheb.cu $(INCDIRS) $(LIBDIRS) $(LIBS)
-	
+#OBJS := ../src/trapz.o ../src/innerproduct.o ../src/laplacian.o ../src/polarization.o  ../src/potential.o ../src/x_operator.o  
+
+#LIBS := -lm -llapacke -llapack -lblas
+
+#INCS := -I ../include/ 
+
+
+all: $(EXS) 
+
+%:: %.c $(OBJS)
+	gcc -o $@ $<  $(LIBS) $(INCS) $(OBJS)
+
+$(OBJS) : 
+	make -C ../src/
+
 clean:
-	-rm testcucheb
+	-rm $(EXS)
+
+

@@ -8,38 +8,59 @@ int main(){
 
 	double integral = 0.0; 
 
-	int n = 8;
-	double Z[n];
+	int num_points = 10000;
+	double Z[num_points];
+	double Q[num_points];
 
 
-	double b = 3.0; 
-	double a = 0.0;
+	double right_endpoint = 3.0; 
+	double left_endpoint = 0.0;
 
 	int ii; 
 	
-	for(ii=0;ii<n;ii++){
-		Z[ii] = 1.0;
-	}cd
+	//for(ii=0;ii<n;ii++){
+	//	Z[ii] = 1.0;
+	//}
 
-	/*for(ii=0;ii<n;ii++){
-	printf("Z: %+1.1e",Z[ii]); 
-	}printf("\n");/*/
+	int jj;
+	double interval_length = (right_endpoint - left_endpoint)/(num_points + 1.0);
 
-	trapz(&Z[0],a,b,n,&integral);
+	//printf("This is h %1.1e \n", h);
 	
-	printf("The inner product: &1.1e \n", integral);	
+	//creating a sine function 
+	//ii+1 because it picks the first interval + 1
+	for(ii=0;ii<num_points;ii++){
+		Z[ii] = sin((2.0 * M_PI)/(right_endpoint - left_endpoint)* (( left_endpoint + (ii+1.0)* interval_length)- left_endpoint) ) ; 
+	}
 
-	//inner_product(&Z[0],&Z[0],a,b,n,&integral);
+	/*
+	for(ii=0;ii<n;ii++){
+	printf("Z: %+1.1e",Z[ii]); 
+	}printf("\n");/*/ 
+
+	//creating a different function that is orthogonal to the first sine function.
+	//ii+1 because it picks the first interval + 1
+	for(ii=0;ii<num_points;ii++){
+		Q[ii] = sin((4.0 * M_PI)/(right_endpoint - left_endpoint)* (( left_endpoint + (ii+1.0)* interval_length)- left_endpoint) ) ; 
+	}
+
+
+
+	//trapz(&Z[0], left_endpoint, right_endpoint, num_points, &integral);
+		
+	//printf("The integral of sin: %1.1e \n", integral);	
+
+	//inner_product(&Z[0],&Q[0], left_endpoint, right_endpoint, num_points, &integral);
 
 	//printf("The inner product: %1.1e \n", integral);
 
-	//polarization(&Z[0], a, b, n, &integral);
+	polarization(&Z[0], left_endpoint, right_endpoint, num_points, &integral);
 
-	//printf("The polarization: %1.1e \n", integral);	
+	printf("The polarization: %1.1e \n", integral);	
 
 	//printf("Integral: %+1.1e \n",integral);
 	
-	//free(Z);
+	//free(Z); you can't unallocate STATIC memory!! 
 	
 
 
