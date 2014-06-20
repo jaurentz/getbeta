@@ -1,5 +1,5 @@
 #this is the home directory of where the project lives. 
-HOMEDIR := /home/jared/Projects/getBeta
+HOMEDIR := /home/johnny/projects/getBeta
 
 # C compiler
 CC := gcc

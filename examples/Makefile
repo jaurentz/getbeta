@@ -1,21 +1,17 @@
 include ../make.inc
 
-#EXS := cedar
-
-#OBJS := ../src/trapz.o ../src/innerproduct.o ../src/laplacian.o ../src/polarization.o  ../src/potential.o ../src/x_operator.o  
-
-#LIBS := -lm -llapacke -llapack -lblas
-
-#INCS := -I ../include/ 
-
-
 all: $(EXS) 
 
 %:: %.c $(OBJS)
-	gcc -o $@ $<  $(LIBS) $(INCS) $(OBJS)
+	$(CC) $(CFlAGS) -o $@ $< $(OBJS) $(LIBS) $(INCS) 
 
-$(OBJS) : 
-	make -C ../src/
+%:: %.cu $(OBJS)
+	$(CUC) $(CUFlAGS) -o $@ $< $(OBJS) $(LIBS) $(INCS) 
+
+$(OBJS): $(SRCS)
+	make -C $(SRCDIR)
+
+$(SRCS):
 
 clean:
 	-rm $(EXS)
