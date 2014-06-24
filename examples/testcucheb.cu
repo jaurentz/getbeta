@@ -30,6 +30,13 @@ int main(void){
 
 	cuchebCheckError(cudaMalloc(&A,n*n*sizeof(double)),__FILE__,__LINE__); 		
 
+	// initialize curand
+	curandGenerator_t curand_gen;
+	cuchebCheckError(curandCreateGenerator(&curand_gen, CURAND_RNG_PSEUDO_DEFAULT),__FILE__,__LINE__);
+	cuchebCheckError(curandSetPseudoRandomGeneratorSeed(curand_gen,time(NULL)),__FILE__,__LINE__);
+	
+	// random starting vector
+	cuchebCheckError(curandGenerateNormalDouble(curand_gen,A,n*n,0.0,1.0),__FILE__,__LINE__);
 
 	// set device memory using CUCHEB
 	cuchebCheckError(cuchebDinit(n,dx,1,1.0),__FILE__,__LINE__);
@@ -86,6 +93,9 @@ int main(void){
 
 	// print norm of y
 	//printf("\nnorm of y = %+1.15e\n\n",nrmy);
+
+	// destroy curand handle
+	cuchebCheckError(curandDestroyGenerator(curand_gen),__FILE__,__LINE__);
 
 	// destroy cublas handle
 	cuchebCheckError(cublasDestroy(handle),__FILE__,__LINE__);
