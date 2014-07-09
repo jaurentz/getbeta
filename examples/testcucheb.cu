@@ -42,7 +42,7 @@ int main(void){
 	cuchebCheckError(cuchebDinit(n,dx,1,1.0),__FILE__,__LINE__);
 	cuchebCheckError(cuchebDinit(n,dy,1,1.0),__FILE__,__LINE__);
 
-	cuchebCheckError(cuchebDinit(n*n,A,1,cuRAND),__FILE__,__LINE__);
+	//cuchebCheckError(cuchebDinit(n*n,A,1,cuRAND),__FILE__,__LINE__);
 	//cuchebCheckError(cuchebDinit(n,A,n+1,1.0),__FILE__,__LINE__);
 	
 

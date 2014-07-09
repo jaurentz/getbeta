@@ -2,14 +2,12 @@
 HOMEDIR := /home/jared/Projects/getBeta
 
 # C compiler
-CC := gcc
-CFLAGS := -O3
+CC := nvcc
+CFLAGS := -O3 -fopenmp
 
 # CUDA compiler
 CUC := nvcc
 CUFLAGS := -O3 --compiler-options '$(CFLAGS)' -gencode arch=compute_30,code=sm_30
-
-
 
 #source file directory 
 SRCDIR := $(HOMEDIR)/src
@@ -18,10 +16,10 @@ SRCDIR := $(HOMEDIR)/src
 EXDIR := $(HOMEDIR)/examples
 
 #wildcard picks all the files with .c extension 
-SRC := $(wildcard $(SRCDIR)/*.c)
+SRCS := $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/*.cu) 
 
 #will replace the .c files with the .o files once they have been compiled. 
-OBJS := $(patsubst $(SRCDIR)/%.c,$(SRCDIR)/%.o,$(SRC))
+OBJS := $(patsubst $(SRCDIR)/%.cu,$(SRCDIR)/%.o,$(wildcard $(SRCDIR)/*.cu)) $(patsubst $(SRCDIR)/%.c,$(SRCDIR)/%.o,$(wildcard $(SRCDIR)/*.c))
 
 #wildcard picks all of the files in example directory with .c file extension. 
 CEXS := $(wildcard $(EXDIR)/*.c)
@@ -34,7 +32,7 @@ EXS := $(patsubst $(EXDIR)/%.c,$(EXDIR)/% ,$(CEXS)) $(patsubst $(EXDIR)/%.cu,$(E
 CUCHEBDIR := /usr/local/cucheb
 
 #calling LAPACKE LAPACK & BLAS 
-LIBS := -L $(CUCHEBDIR)/lib -lcucheb -lcuda -lcusparse -lcublas -lcurand -lcufft -lm -llapacke -llapack -lblas
+LIBS := -L $(CUCHEBDIR)/lib -lcucheb -lcudart -lcuda -lcusparse -lcublas -lcurand -lcufft -lm -llapacke -llapack -lblas
 
 #calling the header file. 
 INCS := -I $(HOMEDIR)/include/ -I $(CUCHEBDIR)/include -I /usr/include/lapacke/ 

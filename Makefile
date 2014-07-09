@@ -1,6 +1,6 @@
 include make.inc
 
-all: 
+all:
 	make -C $(EXDIR)
 
 clean:

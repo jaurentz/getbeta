@@ -1,12 +1,12 @@
 include ../make.inc
 
-all: $(OBJS) 
+all: $(OBJS)
 
 %.o: %.c
-	$(CC) $(CFlAGS) -c $< $(LIBS) $(INCS)
+	$(CUC) $(CUFLAGS) -c $< $(LIBS) $(INCS)
 
 %.o: %.cu
-	$(CUC) $(CUFlAGS) -c $< $(LIBS) $(INCS)
+	$(CUC) $(CUFLAGS) -c $< $(LIBS) $(INCS)
 
 clean:
 	-rm $(OBJS)

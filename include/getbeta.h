@@ -4,7 +4,6 @@
 #ifndef __getbeta_h__
 #define __getbeta_h__
 
-
 void lapmult(double alpha, int num_points, double*X, double*Y, int flag);	
 
 void potential(double beta, int num_points, double right_endpoint, double left_endpoint, double*X, double*Y, int flag); 
