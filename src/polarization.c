@@ -1,4 +1,4 @@
-//this function computes the polarization. This means it will take a psi^2*x and integrate over the the interval. 
+//this function computes the polarization. This means it will take a psi^2*x e.g.( <psi|psi*x> ) and integrate over the the interval. 
 
 //function need **x_operator** & **inner_product**  
 
@@ -10,10 +10,10 @@ void polarization(double * function_1, double left_endpoint, double right_endpoi
 	int flag = 1;
 	int ii; 
 	double beta = 1.0; 
-	//defining the size of the interval(s). 
+	//defining the size of the interval(s). note this is num_points+1 because the interval can't start at zero. 
 	double h = (right_endpoint - left_endpoint)/(num_points+1.0); 
 
-	//allocating memory for new vector for X * vector 
+	//allocating memory for new vector for X * some arbitrary vector.  
 	double * psi_hat; 
 	psi_hat = (double*)malloc(num_points*sizeof(double));
 

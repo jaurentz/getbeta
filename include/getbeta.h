@@ -23,5 +23,28 @@ void norm(double * function_1, double left_endpoint, double right_endpoint, int 
 void normalize_polarize(double * function_1, double left_endpoint, double right_endpoint, int num_points, double * integral);
 
 
+//these are the functions associated with dogwood.c and further on. 
+
+void lap_explicit(int num_points, double *main_diag, double *sub_diag, double alpha, int flag);
+
+void x_squared(int num_points, double left_endpoint, double right_endpoint, double *main_diag, double alpha, int flag);
+
+void E_field(int num_points, double left_endpoint, double right_endpoint, double *main_diag, double alpha, int flag);
+
+//void normalize_polarize(double * function_1, double left_endpoint, double right_endpoint, int num_points, double * integral);
+
+//void polarization(double * function_1, double left_endpoint, double right_endpoint, int num_points, double * integral);
+
+double chebdiff(int row, int col, int num_chebpoints, double *cheb_points);
+
+double chebdiff2(int row, int col, int num_chebpoints, double *chebpoints);
+
+double beta(int row, int col, int num_chebpoints, double *cheb_points, double *polarization);
+
+void cheb_array(int num_chebponts, double *cheb_points, double e_field_max, double e_field_min);
+
+
+
+
 
 #endif 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <lapacke.h>
+#include <lapacke.h>
 #include <getbeta.h> 
 
 struct HamData
@@ -18,7 +18,7 @@ int main(){
 
 	struct HamData *HD;
 	HD = (struct HamData*)malloc(sizeof(struct HamData));
-	HD-> num_points = 3; //num_points
+	HD-> num_points = 10; //num_points
 	HD-> right_endpoint = 2.0; //right_endpoint formerly known as 'a'
 	HD-> left_endpoint = -2.0; //left_endpoint formerly known as 'b'
 
@@ -82,7 +82,7 @@ int main(){
 		}printf("\n");
 	}/*/
 		
-	//creating the hamiltonian 
+	//creating the hamiltonian using the function call HamOp
 	for(ii=0;ii<num_points;ii++){
 		HamOp(&X[ii*num_points],&Y[ii*num_points],HD);
 	} 
@@ -96,8 +96,8 @@ int main(){
 	}
 
 
-	//picking off the main diagonal in order to feed to lapack's eigen-solver 
-	printf("Thse are the diagonal elements\n"); 
+	//picking off the main diagonal in order to pass to lapack's eigen-solver 
+	printf("These are the diagonal elements\n"); 
 	for(ii=0;ii<num_points;ii++){
 		d[ii] = Y[ii*(num_points+1)];
 	}
@@ -106,7 +106,7 @@ int main(){
 	printf("%+1.1e",d[ii]); 
 	}printf("\n");/*/
 
-	//picking the off-diagonal elements in order to feed to lapack's eigen-solver
+	//picking the off-diagonal elements in order to pass to lapack's eigen-solver
 	printf("These are the off-main diagonal elements");
 	for(ii=0;ii<num_points - 1;ii++){
 		e[ii] = Y[ii*(num_points +1)+1];
@@ -142,9 +142,9 @@ int main(){
 
 	//Call 1-800-LA-PACKE for a free consulatation of eigenvalues and eigenvectors. 
 
-	//LAPACKE_dsteqr(LAPACK_COL_MAJOR,'I', n, d ,e ,Z, n); 
+	LAPACKE_dsteqr(LAPACK_COL_MAJOR,'I', num_points, d ,e ,Z, num_points); 
 
-
+	printf("first eigenvalue. %1.15e \n", d[0]);
 
 	
 	/*

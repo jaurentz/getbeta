@@ -7,10 +7,14 @@
 //Y is the output vector after the operator 
 //flag is whether or not to add the next step to Y or write over Y. 
 
+//note that we create the main chunk of the laplacian first and then slap the top and bottom rows onto it. 	
+
 void lapmult(double alpha ,int num_points, double*X,double*Y,int flag){
 
+	//casting ii as an int to use in the for loop(s).
 	int ii;
 
+	//check the equality. If the equality returns TRUE then it will execute the following statement. Otherwise It will go to the else statement in line 38. 
 	if(flag == 0){
 	
 	//computing Y using finite difference method where matrix has -1, 2, -1 on tri diagonal. 
@@ -30,8 +34,8 @@ void lapmult(double alpha ,int num_points, double*X,double*Y,int flag){
 	}
 
 	}
-
-	else{//if else do this
+	//this executes if the equality returns FALSE. 
+	else{
 
 	for(ii=1;ii< num_points -1;ii++){
 		Y[ii] += (-X[ii-1]+2*X[ii]-X[ii+1])*alpha;

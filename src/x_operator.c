@@ -3,6 +3,7 @@
 
 void X_operator(double beta, int num_points, double left_endpoint, double right_endpoint, double* psi_hat, double* function_1, int flag){
 
+
 	int jj;
 	double interval_length = (right_endpoint - left_endpoint)/(num_points + 1.0);
 
