@@ -7,9 +7,10 @@
 #include <getbeta.h>
 
 
-double beta(int row, int col, int num_chebpoints, double *cheb_points, double *integral){
+double beta(int num_chebpoints, double *cheb_points, double *integral){
 
-	int ii; 
+	int ii;
+	int row = num_chebpoints/2; 
 	double beta = 0.0;
 	
 	for(ii=0;ii<num_chebpoints;ii++){

@@ -1,7 +1,9 @@
 #include <omp.h>
-#include <getbeta.h>
 #include <hamop.h>
 #include <cucheb.h>
+extern "C" {
+    #include "getbeta.h"
+}
 
 // spectrans
 cuchebStatus_t spectrans(int n, const double *in, int incin, double *out, int incout, void* userdata){
@@ -31,20 +33,22 @@ int main(){
 	// declare hamiltonian
 	Hamop HO;
 	HO.setDims(3);
-	HO.setNx(pow(2,7));
-	HO.setNy(pow(2,7));
-	HO.setNz(pow(2,7));
-	HO.setXminXmax(0.0,1.0);
-	HO.setYminYmax(0.0,1.0);
-	HO.setZminZmax(0.0,1.0);
-	HO.setXpotYpotZpot(10.0,20.0,30.0);
+	HO.setNx(100);//pow(2,7));
+	HO.setNy(100);//pow(2,7));
+	HO.setNz(100);//pow(2,7));
+	HO.setXminXmax(-10.0,10.0);
+	HO.setYminYmax(-10.0,10.0);
+	HO.setZminZmax(-10.0,10.0);
+	HO.setXpotYpotZpot(1.0,2.0,3.0);
+	HO.setXfieldYfieldZfield(0.1,0.1,0.1);
+	HO.print();
 	
 	// lanczos handle
 	cuchebLanczosHandle LH;
 	LH.n = HO.getNx()*HO.getNy()*HO.getNz();
-	LH.numeigs = 4;
+	LH.numeigs = 2;
 	LH.runlength = 60;
-	LH.restarts = 10;
+	LH.restarts = 4;
 	LH.tol = 1e-14;
 	LH.numconv = 0;
 	LH.numrestarts = 0;
@@ -82,14 +86,12 @@ int main(){
 	double *eigvecs;
 	cuchebCheckError(cudaMalloc(&eigvecs,LH.numeigs*LH.n*sizeof(double)),__FILE__,__LINE__);
 	cuchebCheckError(cuchebDinit(LH.n,eigvecs,1,1.0),__FILE__,__LINE__);
-/*	
+
 	// allocate memory for residuals
-	double theta;
-	double maxres;
 	double *res, *ray;
-	cuchebCheckError((void*)(ray = (double*)malloc(numeigs*sizeof(double))),__FILE__,__LINE__);
-	cuchebCheckError((void*)(res = (double*)malloc(numeigs*sizeof(double))),__FILE__,__LINE__);
-*/	
+	cuchebCheckError((void*)(ray = (double*)malloc(LH.numeigs*sizeof(double))),__FILE__,__LINE__);
+	cuchebCheckError((void*)(res = (double*)malloc(LH.numeigs*sizeof(double))),__FILE__,__LINE__);
+
 	// chebpoly
 	tau = 1e5;
 	temp = tau/specrad/specrad;
@@ -113,17 +115,28 @@ int main(){
 	printf("\nnumconv = %d\n",LH.numconv);
 	printf("numrestarts = %d\n",LH.numrestarts);
 	printf("nummatvecs = %d\n\n",LH.nummatvecs);	
-/*	
+	
 	// compute rayleigh quotients and residuals
-	cuchebCheckError(rayleigh(n,op,(void*)&HO,numeigs,ray,eigvecs,res),__FILE__,__LINE__);
+	cuchebCheckError(rayleigh(LH.n,op,(void*)&HO,LH.numeigs,ray,eigvecs,res),__FILE__,__LINE__);
 		
 	// print rayleigh quotients
 	printf("\n");
-	for(int ii=0;ii<numeigs;ii++){		
-		printf("rayleigh[%d] = %+1.2e, res[%d] = %+1.2e\n",ii,ray[ii],ii,res[ii]/specrad);
+	for(int ii=0;ii<LH.numeigs;ii++){		
+		printf("rayleigh[%d] = %+1.15e, res[%d] = %+1.2e\n",ii,ray[ii],ii,res[ii]/specrad);
 	}
 	printf("\n");
-		
+	
+	// compute polarization
+	double polar;
+	HO.Polarization(1.0, 0.0, 0.0, eigvecs, &polar);
+	printf("x polarization = %+1.15e\n\n",polar);
+	
+	HO.Polarization(0.0, 1.0, 0.0, eigvecs, &polar);
+	printf("y polarization = %+1.15e\n\n",polar);
+	
+	HO.Polarization(0.0, 0.0, 1.0, eigvecs, &polar);
+	printf("z polarization = %+1.15e\n\n",polar);
+/*		
 	// compute diff
 	//maxres = 0.0;
 	//for(int ii=0;ii<numeigs;ii++){
@@ -137,8 +150,8 @@ int main(){
 */	
 	//free memory
 	cuchebCheckError(cudaFree(eigvecs),__FILE__,__LINE__);
-//	free(ray);
-//	free(res);
+	free(ray);
+	free(res);
 
 	// return
 	return 0;

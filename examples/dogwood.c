@@ -196,7 +196,7 @@ int main(){
 
  	printf("this is D2 %+1.15e \n",sum);
 
-	BETA = beta(row, col, num_chebpoints, &elec_field[0], &polarization[0]); //&elec_field[0] was &cheb_points[0]
+	BETA = beta(num_chebpoints, &elec_field[0], &polarization[0]); //&elec_field[0] was &cheb_points[0]
 
 	printf("this is beta %1.15e \n", BETA); 
 	

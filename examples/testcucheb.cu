@@ -1,62 +1,51 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <cucheb.h>
 #include <omp.h>
+#include <hamop.h>
+#include <cucheb.h>
+extern "C" {
+    #include "getbeta.h"
+}
 
 
 int main(void){
 
 	//defining variables
 	int n;
-	double *x, *y, *dx, *dy, *A, *C, *P;
+	double *x, *y, *dx, *dy, *A;
 	
 	// set size
-	n = 200;
+	n = 5;
 	
 	// allocate host memory
 	x = new double[n];
 	y = new double[n];
 	
 	// print values in host memory
-	//printf("\nx and y before being set:\n\n");
-	//for(int ii=0;ii<n;ii++){
-	//	printf("x[%d] = %+1.15e, y[%d] = %+1.15e\n",ii,x[ii],ii,y[ii]);
-	//}
-	//printf("\n");
+	printf("\nx and y before being set:\n\n");
+	for(int ii=0;ii<n;ii++){
+		printf("x[%d] = %+1.15e, y[%d] = %+1.15e\n",ii,x[ii],ii,y[ii]);
+	}
+	printf("\n");
 	
 	// allocate device memory
 	cuchebCheckError(cudaMalloc(&dx,n*sizeof(double)),__FILE__,__LINE__);
 	cuchebCheckError(cudaMalloc(&dy,n*sizeof(double)),__FILE__,__LINE__);
 
 	cuchebCheckError(cudaMalloc(&A,n*n*sizeof(double)),__FILE__,__LINE__); 		
-	cuchebCheckError(cudaMalloc(&C,n*n*sizeof(double)),__FILE__,__LINE__); 	
-	cuchebCheckError(cudaMalloc(&P,n*n*sizeof(double)),__FILE__,__LINE__); 	
 
 	// initialize curand
 	curandGenerator_t curand_gen;
 	cuchebCheckError(curandCreateGenerator(&curand_gen, CURAND_RNG_PSEUDO_DEFAULT),__FILE__,__LINE__);
 	cuchebCheckError(curandSetPseudoRandomGeneratorSeed(curand_gen,time(NULL)),__FILE__,__LINE__);
 	
-	// random starting vector 'A'.
+	// random starting vector
 	cuchebCheckError(curandGenerateNormalDouble(curand_gen,A,n*n,0.0,1.0),__FILE__,__LINE__);
 
 	// set device memory using CUCHEB
 	cuchebCheckError(cuchebDinit(n,dx,1,1.0),__FILE__,__LINE__);
 	cuchebCheckError(cuchebDinit(n,dy,1,1.0),__FILE__,__LINE__);
-	cuchebCheckError(cuchebDinit(n*n,C,1,0.0),__FILE__,__LINE__);
-	cuchebCheckError(cuchebDinit(n*n,P,1,0.0),__FILE__,__LINE__);	
-	cuchebCheckError(cuchebDinit(n,P,n+1,1.0),__FILE__,__LINE__); 
-	
-	//cuchebCheckError(cuchebDinit(n*n,A,1,cuRAND),__FILE__,__LINE__);
-	
-	//this sets the identity matrix 'A'	
-	//cuchebCheckError(cuchebDinit(n,A,n+1,1.0),__FILE__,__LINE__); 
 
-<<<<<<< Updated upstream
 	//cuchebCheckError(cuchebDinit(n*n,A,1,cuRAND),__FILE__,__LINE__);
 	//cuchebCheckError(cuchebDinit(n,A,n+1,1.0),__FILE__,__LINE__);
-=======
->>>>>>> Stashed changes
 	
 
 	// create cublas handle
@@ -94,10 +83,11 @@ int main(void){
 
 
 	//function performs matrix-vector multiplication y = alpha * OP(A) * x + beta * y
-	//int stride = 1;		
-	//double alpha = 2.0;
-	//double beta = 3.0;
-	//cuchebCheckError(cublasDgemv(handle, CUBLAS_OP_T, n, n, &alpha, A, n, dx, stride, &beta, dy, stride),__FILE__,__LINE__);	
+	int stride = 1;	
+	//int n = 10;	
+	double alpha = 2.0;
+	double beta = 3.0;
+	cuchebCheckError(cublasDgemv(handle, CUBLAS_OP_T, n, n, &alpha, A, n, dx, stride, &beta, dy, stride),__FILE__,__LINE__);	
 	
 	// compute norm of dy
 	//double nrmy;
@@ -105,47 +95,6 @@ int main(void){
 
 	// print norm of y
 	//printf("\nnorm of y = %+1.15e\n\n",nrmy);
-
-
-	//attempt at gram-schit process.
-	double numerator, denominator, norm, alpha; 
-	int ii, jj; 
-	int stride = 1;
-	for(ii=0;ii<n;ii++){
-		//pick the sequential 'n' elements of 'A'.
-			for(jj=0;jj<ii;jj++){
-	
-			cuchebCheckError(cublasDdot (handle, n, &A[ii*n], stride, &A[jj*n], stride, &numerator),__FILE__,__LINE__) ;
-
-			cuchebCheckError(cublasDdot(handle, n, &A[jj*n], stride, &A[jj*n], stride, &denominator),__FILE__,__LINE__);
-			
-			alpha = -numerator / denominator; 
-
-			cuchebCheckError(cublasDaxpy(handle, n, &alpha, &A[jj*n], stride, &A[ii*n], stride),__FILE__,__LINE__);
-
-		}  
-	//computing the L2 norm from the orthogonal-ized vector from above 
-	cuchebCheckError(cublasDnrm2(handle, n, &A[ii*n], stride, &norm),__FILE__,__LINE__);
-
-	norm = 1.0/norm ; 
-
-	cuchebCheckError(cublasDscal(handle, n, &norm, &A[ii*n], stride),__FILE__,__LINE__);
-
-	}	
-
-	//checking the gram-schit algorithm... 
-	alpha = 1.0;
-	cuchebCheckError(cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, n, n, n, &alpha, A, n, A, n, &alpha, C, n),__FILE__,__LINE__);
-
-	double beta = -1.0;
-	//double Z; 
-	cuchebCheckError(cublasDgeam(handle, CUBLAS_OP_N, CUBLAS_OP_N, n, n, &alpha, C, n, &beta, P, n, P, n),__FILE__,__LINE__);
-
-	double check_norm;
-	cuchebCheckError(cublasDnrm2(handle, n*n, P, stride, &check_norm),__FILE__,__LINE__);	
-
-	printf("\n this is the norm: %E \n", check_norm);
-
 
 	// destroy curand handle
 	cuchebCheckError(curandDestroyGenerator(curand_gen),__FILE__,__LINE__);
@@ -158,11 +107,11 @@ int main(void){
 	cuchebCheckError(cudaMemcpy(y,dy,n*sizeof(double),cudaMemcpyDeviceToHost),__FILE__,__LINE__);
 
 	// print values in host memory
-	//printf("\nx and y after being set:\n\n");
-	//for(int ii=0;ii<n;ii++){
-	//	printf("x[%d] = %+1.15e, y[%d] = %+1.15e\n",ii,x[ii],ii,y[ii]);
-	//}
-	//printf("\n");
+	printf("\nx and y after being set:\n\n");
+	for(int ii=0;ii<n;ii++){
+		printf("x[%d] = %+1.15e, y[%d] = %+1.15e\n",ii,x[ii],ii,y[ii]);
+	}
+	printf("\n");
 	
 	// free device memory
 	cuchebCheckError(cudaFree(dx),__FILE__,__LINE__);

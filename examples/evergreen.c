@@ -129,7 +129,7 @@ int main(){
 //************************************************************************
 
 	//this takes the polarization vector and will take the inner product of it with the spectral differentiation matrix at zero(provided the number of chebpoints is odd.) This will return the value of BETA. 
-	BETA = beta(row, col, num_chebpoints, &elec_field[0], &polarization[0]);
+	BETA = beta(num_chebpoints, &elec_field[0], &polarization[0]);
 
 	printf("This is beta %E \n", BETA); 
 

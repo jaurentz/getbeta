@@ -15,6 +15,7 @@ class Hamop{
 		double ymin, ymax;
 		double zmin, zmax;
 		double xpot, ypot, zpot;
+		double xfield, yfield, zfield;
 
 	public:
 
@@ -25,10 +26,11 @@ class Hamop{
 
 		// matrix vector product
 		void Mult(double* vecin, double* vecout);
+		void Polarization(double xdir, double ydir, double zdir, double* vec, double* polar);
 
 		// constructors
 		Hamop(void):dims(1),nx(1),ny(1),nz(1),xmin(-1.0),xmax(1.0),ymin(-1.0),ymax(1.0),zmin(-1.0),zmax(1.0),xpot(1.0),
-			ypot(1.0),zpot(1.0){}
+			ypot(1.0),zpot(1.0),xfield(0.0),yfield(0.0),zfield(0.0){}
 		Hamop(const Hamop * ho){
 			setDims(ho->getDims());
 			setNx(ho->getNx());
@@ -38,6 +40,7 @@ class Hamop{
 			setYminYmax(ho->getYmin(),ho->getYmax());
 			setZminZmax(ho->getZmin(),ho->getZmax());
 			setXpotYpotZpot(ho->getXpot(),ho->getYpot(),ho->getZpot());
+			setXfieldYfieldZfield(ho->getXfield(),ho->getYfield(),ho->getZfield());
 		}
 
 		// printer
@@ -51,6 +54,7 @@ class Hamop{
 			std::cout<< " [ymin,ymax] = [" << ymin << "," << ymax << "]\n";
 			std::cout<< " [zmin,zmax] = [" << zmin << "," << zmax << "]\n";
 			std::cout<< " (xpot,ypot,zpot) = (" << xpot << "," << ypot << "," << zpot << ")\n";
+			std::cout<< " (xfield,yfield,zfield) = (" << xfield << "," << yfield << "," << zfield << ")\n";
 			std::cout<< "\n";
 		}
 
@@ -68,6 +72,9 @@ class Hamop{
 		double getXpot(void) const{return xpot;}
 		double getYpot(void) const{return ypot;}
 		double getZpot(void) const{return zpot;}
+		double getXfield(void) const{return xfield;}
+		double getYfield(void) const{return yfield;}
+		double getZfield(void) const{return zfield;}
 
 		// sets
 		void setDims(int D){
@@ -176,6 +183,11 @@ class Hamop{
 				std::cout<< " Setting xpot = ypot = zpot = 1." << "\n\n";
 			}
 		}
+		void setXfieldYfieldZfield(double A, double B, double C){
+			xfield = A;
+			yfield = B;
+			zfield = C;
+		}
 };
 
 
@@ -185,5 +197,8 @@ void DmultLap(int dim, int nx, int ny, int nz, double xmin, double xmax, double 
 __global__ void Dlap(int dim, int nx, int ny, int nz, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, const double* vecin, double* vecout,int add);
 void DmultPot(int dims, int nx, int ny, int nz, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double xpot, double ypot, double zpot, const double* vecin, double* vecout,int add);
 __global__ void Dpot(int dims, int nx, int ny, int nz, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double xpot, double ypot, double zpot, const double* vecin, double* vecout,int add);
+void DmultField(int dims, int nx, int ny, int nz, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double xfield, double yfield, double zfield, const double* vecin, double* vecout, int add);
+__global__ void Dfield(int dims, int nx, int ny, int nz, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double xfield, double yfield, double zfield, const double* vecin, double* vecout, int add);
 
+cuchebStatus_t rayleigh(int n, cuchebOpMult OPMULT, void *USERDATA, int numeigs, double *rayleigh, double *eigvecs, double *residuals);
 #endif

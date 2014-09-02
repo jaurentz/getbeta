@@ -4,6 +4,7 @@
 #ifndef __getbeta_h__
 #define __getbeta_h__
 
+
 void lapmult(double alpha, int num_points, double*X, double*Y, int flag);	
 
 void potential(double beta, int num_points, double right_endpoint, double left_endpoint, double*X, double*Y, int flag); 
@@ -39,12 +40,9 @@ double chebdiff(int row, int col, int num_chebpoints, double *cheb_points);
 
 double chebdiff2(int row, int col, int num_chebpoints, double *chebpoints);
 
-double beta(int row, int col, int num_chebpoints, double *cheb_points, double *polarization);
+double beta(int num_chebpoints, double *cheb_points, double *polarization);
 
-void cheb_array(int num_chebponts, double *cheb_points, double e_field_max, double e_field_min);
-
-
-
+void cheb_array(int, double*, double, double);
 
 
 #endif 
