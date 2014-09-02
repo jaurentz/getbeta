@@ -34,9 +34,9 @@ int main(){
 	// declare hamiltonian
 	Hamop HO;
 	HO.setDims(3);
-	HO.setNx(150);
-	HO.setNy(150);
-	HO.setNz(150);
+	HO.setNx(224);
+	HO.setNy(224);
+	HO.setNz(224);
 	HO.setXminXmax(-10.0,10.0);
 	HO.setYminYmax(-10.0,10.0);
 	HO.setZminZmax(-10.0,10.0);
@@ -47,7 +47,7 @@ int main(){
 	LH.n = HO.getNx()*HO.getNy()*HO.getNz();
 	LH.numeigs = 2;
 	LH.runlength = 60;
-	LH.restarts = 4;
+	LH.restarts = 1;
 	
 	// set n
 	printf("\nn = %d\n",LH.n);
@@ -86,6 +86,9 @@ int main(){
 	
 	// polarization array
 	double polarvals[numpoints];
+
+	// begin timer
+	begin = omp_get_wtime();
 	
 	// loop to compute polarization
 	for(int jj=0;jj<numpoints;jj++){
@@ -93,8 +96,6 @@ int main(){
 	    HO.setXfieldYfieldZfield(chebpoints[jj],0.0,0.0);
 	    //HO.print();
 	
-	    // begin timer
-	    begin = omp_get_wtime();
 	
 	    // compute specrad
 	    cuchebCheckError(cuchebDspecrad(LH.n,op,(void*)&HO,&specrad),__FILE__,__LINE__);
@@ -122,12 +123,8 @@ int main(){
 	    LH.numconv = 0;
 	    LH.numrestarts = 0;
 	    LH.nummatvecs = 0;
-	    if(jj > 0){LH.runlength = 10;}	
+	    if(jj > 0){LH.runlength = 15;}	
 	    cuchebCheckError(cuchebDeigs(&LH, &SpecOp, eigvecs),__FILE__,__LINE__);
-	
-	    // end timer
-	    end = omp_get_wtime();
-	    printf("\nTime to run IRLM: %f (secs)\n\n",end-begin);
 	
 	    // print Lanczos stats
 	    printf("\nnumconv = %d\n",LH.numconv);
@@ -138,7 +135,7 @@ int main(){
 	    cuchebCheckError(rayleigh(LH.n,op,(void*)&HO,LH.numeigs,ray,eigvecs,res),__FILE__,__LINE__);
 		
 	    // print rayleigh quotients
-	    printf("\n");
+	    //printf("\n");
 	    for(int ii=0;ii<LH.numeigs;ii++){		
 		    printf("rayleigh[%d] = %+1.15e, res[%d] = %+1.2e\n",ii,ray[ii],ii,res[ii]/specrad);
 	    }
@@ -148,7 +145,12 @@ int main(){
 	    HO.Polarization(1.0, 0.0, 0.0, eigvecs, &polarvals[jj]);
 	    	
 	}
+    
+	// end timer
+	end = omp_get_wtime();
+	printf("\nTime to run IRLM: %f (secs)\n\n",end-begin);
 	
+
     // print polarvals
     printf("\n");
     for(int ii=0;ii<numpoints;ii++){		
