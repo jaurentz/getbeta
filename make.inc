@@ -1,13 +1,13 @@
 #this is the home directory of where the project lives. 
-HOMEDIR := /usr1/jaurentz/Projects/getBeta
+HOMEDIR := /home/jared/Projects/getBeta
 
 # C compiler
-CC := nvcc
+CC := gcc
 CFLAGS := -O3 -fopenmp
 
 # CUDA compiler
 CUC := nvcc
-CUFLAGS := -O3 --compiler-options '$(CFLAGS)' -gencode arch=compute_35,code=sm_35
+CUFLAGS := --compiler-options '$(CFLAGS)' -gencode arch=compute_30,code=sm_30
 
 #source file directory 
 SRCDIR := $(HOMEDIR)/src
@@ -29,16 +29,10 @@ CUEXS := $(wildcard $(EXDIR)/*.cu)
 EXS := $(patsubst $(EXDIR)/%.c,$(EXDIR)/% ,$(CEXS)) $(patsubst $(EXDIR)/%.cu,$(EXDIR)/% ,$(CUEXS))
 
 # cucheb
-CUCHEBDIR := /usr1/jaurentz/MyLibs/cucheb
-
-# lapack
-LAPACKDIR := /usr1/jaurentz/MyLibs/lapack-3.5.0
-
-# lapacke
-LAPACKEDIR := $(LAPACKDIR)/lapacke
+CUCHEBDIR := /usr/local/cucheb
 
 #calling LAPACKE LAPACK & BLAS 
-LIBS := -L $(CUCHEBDIR)/lib -L $(LAPACKDIR) -lcucheb -lcudart -lcuda -lcusparse -lcublas -lcurand -lcufft -lm -llapacke -llapack -lblas
+LIBS := -L $(CUCHEBDIR)/lib -lcucheb -lcudart -lcuda -lcusparse -lcublas -lcurand -lcufft -lm -llapacke -llapack -lblas
 
 #calling the header file. 
-INCS := -I $(HOMEDIR)/include/ -I $(CUCHEBDIR)/include -I $(LAPACKEDIR)/include 
+INCS := -I $(HOMEDIR)/include/ -I $(CUCHEBDIR)/include -I /usr/include/lapacke/ 
