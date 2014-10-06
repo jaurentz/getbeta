@@ -34,9 +34,9 @@ int main(){
 	// declare hamiltonian
 	Hamop HO;
 	HO.setDims(3);
-	HO.setNx(224);
-	HO.setNy(224);
-	HO.setNz(224);
+	HO.setNx(100);
+	HO.setNy(100);
+	HO.setNz(100);
 	HO.setXminXmax(-10.0,10.0);
 	HO.setYminYmax(-10.0,10.0);
 	HO.setZminZmax(-10.0,10.0);

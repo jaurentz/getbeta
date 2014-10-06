@@ -1,6 +1,5 @@
 //this function should give the chebpoints for an arbitrary interval [e_field min, e_field_max] and will store them in the vector cheb_points[ii]
 
-
 #include <stdlib.h>
 #include <math.h>
 
