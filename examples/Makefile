@@ -1,17 +1,18 @@
 include ../make.inc
 
+#will replace the .c files with the .o files once they have been compiled. 
+OBJS := $(patsubst ../src/%.cu,../src/%.o,$(wildcard ../src/*.cu)) $(patsubst ../src/%.c,../src/%.o,$(wildcard ../src/*.c))
+
+#patsubst will replace the .c and .cu files with .o 
+EXS := $(patsubst ./%.c,./% ,$(wildcard ./*.c)) $(patsubst ./%.cu,./% ,$(wildcard ./*.cu))
+
 all: $(EXS) 
 
-%:: %.c $(OBJS)
-	$(CUC) $(CUFLAGS) -o $@ $< $(OBJS) $(LIBS) $(INCS) 
+%:: %.c
+	$(CUC) $(CUFLAGS) -o $@ $< $(OBJS) -I../include/ $(INCS) $(LIBS) 
 
-%:: %.cu $(OBJS)
-	$(CUC) $(CUFLAGS) -o $@ $< $(OBJS) $(LIBS) $(INCS) 
-
-$(OBJS): $(SRCS)
-	make -C $(SRCDIR)
-
-$(SRCS):
+%:: %.cu
+	$(CUC) $(CUFLAGS) -o $@ $< $(OBJS) -I../include/ $(INCS) $(LIBS) 
 
 clean:
 	-rm $(EXS)
