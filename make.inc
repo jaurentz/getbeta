@@ -1,13 +1,34 @@
-# CUDA compiler
-CUC := /usr/local/cuda-6.0/bin/nvcc
-CUFLAGS := --compiler-options '-O3 -fopenmp' -gencode arch=compute_35,code=sm_35 -gencode arch=compute_30,code=sm_30
+#this is the home directory of where the project lives. 
+HOMEDIR := /home/johnny/project/getbeta
 
-# cucheb
-CUCHEBDIR := /home/aurentz/Mylibs/cucheb
+# C compiler
+CC := gcc
+CFLAGS := -O3
+
+# CUDA compiler
+CUC := nvcc
+CUFLAGS := -O3 --compiler-options '$(CFLAGS)' -gencode arch=compute_30,code=sm_30
+
+#source file directory 
+SRCDIR := $(HOMEDIR)/src
+
+#example file directory 
+EXDIR := $(HOMEDIR)/examples
+
+#wildcard picks all the files with .c extension 
+SRC := $(wildcard $(SRCDIR)/*.c)
+
+#will replace the .c files with the .o files once they have been compiled. 
+OBJS := $(patsubst $(SRCDIR)/%.c,$(SRCDIR)/%.o,$(SRC))
+
+#wildcard picks all of the files in example directory with .c file extension. 
+CEXS := $(wildcard $(EXDIR)/*.c)
+
+#patsubst will replace the .c files with .o 
+EXS := $(patsubst $(EXDIR)/%.c,$(EXDIR)/% ,$(CEXS) )
 
 #calling LAPACKE LAPACK & BLAS 
-LIBS := -L$(CUCHEBDIR)/lib -lcucheb -lcudart -lcuda -lcusparse -lcublas -lcurand -lcufft \
--L/home/aurentz/Mylibs/lapack-3.5.0 -llapacke -llapack -lblas -lm
+LIBS := -lm -llapacke -llapack -lblas
 
 #calling the header file. 
-INCS := -I$(CUCHEBDIR)/include -I/home/aurentz/Mylibs/lapack-3.5.0/lapacke/include 
+INCS := -I $(HOMEDIR)/include/  -I /usr/include/lapacke/
